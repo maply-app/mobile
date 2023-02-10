@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -17,8 +17,28 @@
     "assetBundlePatterns": [
       "**/*"
     ],
+    "plugins": [
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibW92cHVzaG1vdiIsImEiOiJjbGN1enZrbDMwMmN4M3JvemozaTlwbHViIn0.Hbm-h5dreyAEZ08wdn-MaA"
+        }
+      ]
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей геолокации",
+        "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей геолокации",
+        "NSLocationWhenInUseUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей геолокации",
+        "NSPhotoLibraryUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей галерее фотографий.",
+        "UIBackgroundModes": [
+          "location",
+          "fetch"
+        ]
+      },
+      "bundleIdentifier": "com.movpushmov.maply"
     },
     "android": {
       "adaptiveIcon": {

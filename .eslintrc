@@ -1,0 +1,47 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "plugins": [
+    "@typescript-eslint",
+    "react",
+    "react-native"
+  ],
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react-native/all",
+    "airbnb"
+  ],
+  "rules": {
+    "semi": [2, "never"],
+    "import/extensions": "off",
+    "import/no-unresolved": "off",
+    "import/prefer-default-export": "off",
+    "no-shadow": "off",
+    "no-unused-vars": "off",
+    "max-len": ["error", { "code": 150 }],
+    "no-restricted-syntax": "off",
+    "no-void": "off",
+    "no-undef": "off",
+    "react/require-default-props": "off",
+    "react/jsx-filename-extension": [2, { "extensions": [".js", ".jsx", ".ts", ".tsx"] }],
+    "no-console": "off",
+    "import/no-extraneous-dependencies": "off",
+    "react/jsx-props-no-spreading": "off",
+    "no-use-before-define": "off",
+    "react-native/no-color-literals": "off",
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "react-native/no-raw-text": "off",
+    "global-require": "off",
+    "@typescript-eslint/no-var-requires": "off",
+    "react-native/no-inline-styles": "off",
+    "react/jsx-no-bind": "off"
+  }
+}
