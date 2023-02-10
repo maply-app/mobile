@@ -59,7 +59,7 @@ export default function App() {
     }
   }, [token, pending.getProfile, user])
 
-  if (token && !user) {
+  if ((token && !user) || (user && !user?.info?.coords)) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" />

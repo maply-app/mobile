@@ -39,7 +39,7 @@ function getBatteryIcon(percentage = 0) {
 
 function checkIfInBounds(
   bounds: Position[],
-  coords: UserInfo['coords']['geo']['coords'],
+  coords: { lon: number, lat: number },
 ) {
   return (
     bounds[0][0] + 0.1 >= coords.lon
@@ -50,7 +50,7 @@ function checkIfInBounds(
 }
 
 export function UserMarker({ user, onPress }: Props) {
-  const info = user.info!.coords
+  const info = user.info!.coords!
 
   const userInfo = {
     isOnline: info.isOnline,

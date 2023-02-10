@@ -16,7 +16,7 @@ export function Map() {
   const user = useStore($user)!
   const friends = useStore($friends)
 
-  const { coords } = user.info!.coords.geo
+  const { coords } = user.info!.coords!.geo
   const navigate = useBottomSheetNavigation()
 
   const cameraRef = useRef<MapboxGL.Camera>(null)

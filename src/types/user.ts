@@ -1,5 +1,5 @@
 export interface UserInfo {
-  coords: {
+  coords?: {
     geo: {
       coords: {
         lat: number;

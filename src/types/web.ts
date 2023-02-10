@@ -1,4 +1,4 @@
-import { ReceivedRequest, SentRequest } from '../api/friends/getRequests'
+import { ReceivedRequest, SentRequest } from './user'
 
 export type NetworkRequestAnswer<T> =
   | {

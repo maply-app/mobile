@@ -1,18 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import {
   StyleSheet, Text, View, TextInput,
 } from 'react-native'
-import { Link } from '@react-navigation/native'
+import { Link, useNavigation } from '@react-navigation/native'
 import { Formik } from 'formik'
 import { object, string } from 'yup'
 import { Button } from 'react-native-paper'
 import { useStore } from 'effector-react'
 import { useAssets } from 'expo-asset'
 import { Image } from 'expo-image'
+import { createEvent, createStore, sample } from 'effector'
 import SafeArea from '../../components/SafeArea'
-import { $errors, $pending } from '../../effector/ui/store'
 import { signUp } from '../../effector/user/events'
 import { themes } from '../../const/theme'
+import { signUpFx } from '../../effector/user/effects/user'
+import { NavigationProps } from '../../types/navigation'
 
 const bodySchema = object().shape({
   name: string()
@@ -42,18 +44,44 @@ const bodySchema = object().shape({
     .max(24, 'максимальная длина пароля - 24 символа.'),
 })
 
-export function SignUp() {
-  const errors = useStore($errors)
-  const pending = useStore($pending)
+enum SignUpStatus {
+  NotSent,
+  Loading,
+  Success,
+  Fail
+}
 
+const requestPending = createEvent()
+
+const $signUpStatus = createStore(SignUpStatus.NotSent)
+  .on(requestPending, () => SignUpStatus.Loading)
+  .on(signUpFx.failData, () => SignUpStatus.Fail)
+  .on(signUpFx.doneData, () => SignUpStatus.Success)
+
+sample({
+  clock: signUpFx.pending,
+  target: requestPending,
+  filter: (pending) => pending,
+})
+
+export function SignUp() {
+  const { navigate } = useNavigation<NavigationProps>()
+
+  const status = useStore($signUpStatus)
   const logo = useAssets(require('../../assets/logo.png'))[0]!
+
+  useEffect(() => {
+    if (status === SignUpStatus.Success) {
+      navigate('SignIn')
+    }
+  }, [status])
 
   return (
     <SafeArea>
       <View style={styles.container}>
         {logo && <Image source={{ uri: logo[0].uri }} style={styles.logo} />}
 
-        {errors.signUp && (<Text style={styles.errorText}>Ошибка регистрации</Text>)}
+        {status === SignUpStatus.Fail && (<Text style={styles.errorText}>Ошибка регистрации</Text>)}
 
         <View style={styles.uiContainer}>
           <Formik
@@ -136,7 +164,7 @@ export function SignUp() {
                   style={styles.button}
                   mode="contained"
                   disabled={!isValid || values.name.length === 0}
-                  loading={pending.signUp}
+                  loading={status === SignUpStatus.Loading}
                   onPress={() => handleSubmit()}
                 >
                   Зарегистрироваться

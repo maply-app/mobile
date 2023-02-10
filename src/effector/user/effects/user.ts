@@ -80,7 +80,15 @@ export const updateInfoFx = createEffect(
       throw new Error('User not initialized')
     }
 
-    const { lastUpdate: _, ...info } = user.info.coords
+    const { lastUpdate: _, ...info } = user.info.coords ?? {
+      geo: {
+        coords: { lat: 0, lon: 0 },
+        speed: 0,
+        direction: 0,
+      },
+      info: { battery: 0 },
+      isOnline: true,
+    }
 
     info.geo.coords.lat = infoToUpdate?.lat ?? info.geo.coords.lat
     info.geo.coords.lon = infoToUpdate?.lon ?? info.geo.coords.lon

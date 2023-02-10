@@ -36,7 +36,7 @@ export function SignIn() {
             onChangeText={setEmail}
             style={styles.field}
             placeholder="Ваша почта"
-            placeholderTextColor={themes.dark.backgroundColor}
+            placeholderTextColor={themes.dark.primaryColor}
             autoCapitalize="none"
           />
 
@@ -46,7 +46,7 @@ export function SignIn() {
             secureTextEntry
             placeholder="Ваш пароль"
             value={password}
-            placeholderTextColor={themes.dark.backgroundColor}
+            placeholderTextColor={themes.dark.primaryColor}
             onChangeText={setPassword}
             style={styles.field}
             autoCapitalize="none"
