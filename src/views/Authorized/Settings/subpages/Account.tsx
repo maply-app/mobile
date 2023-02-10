@@ -26,7 +26,7 @@ export function Account() {
         <Text style={styles.title}>Настройки профиля</Text>
 
         <View style={styles.row}>
-          <Avatar user={{ name: user.name, avatar }} size={64} />
+          <Avatar user={{ username: user.username, avatar }} size={64} />
 
           <Button
             mode="contained"

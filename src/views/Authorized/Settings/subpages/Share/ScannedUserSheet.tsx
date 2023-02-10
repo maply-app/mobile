@@ -37,7 +37,7 @@ export function ScannedUserSheet(props: SheetProps<{
     >
       <View style={styles.sheetInfo}>
         <Avatar
-          user={{ name: payload.name, avatar: payload.avatar }}
+          user={{ username: payload.userName, avatar: payload.avatar }}
           size={72}
           style={{
             alignSelf: 'center',

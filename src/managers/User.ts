@@ -49,7 +49,7 @@ export class UserManager {
   static startWatch() {
     UserManager.batterySubscription = addBatteryLevelListener(({ batteryLevel }) => {
       updateInfo({
-        battery: batteryLevel,
+        battery: Math.trunc(batteryLevel * 100),
       })
     })
 

@@ -9,7 +9,7 @@ interface Props {
   size?: number;
   radius?: number;
 
-  user: Pick<User, 'name' | 'avatar'>
+  user: Pick<User, 'username' | 'avatar'>
 
   style?: ImageStyle;
 }
@@ -52,8 +52,8 @@ export function Avatar({
   }
 
   if (!user.avatar) {
-    if (user.name) {
-      const colors = getAvatarColors(user.name)
+    if (user.username) {
+      const colors = getAvatarColors(user.username)
       const initialsSize = size / 2
 
       return (
@@ -70,7 +70,7 @@ export function Avatar({
           <Text
             style={{ color: colors.initials, fontWeight: 'bold', fontSize: initialsSize }}
           >
-            {user.name[0].toUpperCase()}
+            {user.username[0].toUpperCase()}
           </Text>
         </View>
       )

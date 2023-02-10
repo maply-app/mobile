@@ -77,7 +77,7 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
         <View style={styles.friendsTitleContainer}>
           <Text style={styles.friendsTitle}>
             Друзья
-            {foundUser.name}
+            {` ${foundUser.name}`}
           </Text>
           <Text style={styles.friendsCounter}>
             {(foundUser.friends ?? []).length}
