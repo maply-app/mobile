@@ -10,14 +10,18 @@ import {
 import { IconButton } from 'react-native-paper'
 import { useStore } from 'effector-react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { useNavigation } from '@react-navigation/native'
 import { Avatar } from '../../../../../components/Avatar'
 import { useBottomSheetNavigation } from '../../../../../hooks/useBottomSheetNavigation'
 import { useUserProfile } from '../../../../../hooks/useUserProfile'
 import { $friends, $user } from '../../../../../effector/user/store'
 import { FriendButton } from '../../../../../components/FriendButton'
 import { themes } from '../../../../../const/theme'
+import { NavigationProps } from '../../../../../types/navigation'
+import { selectChat } from '../../../Conversations/Conversation/useCurrentChat'
 
 export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string } }, 'User'>) {
+  const navigation = useNavigation<NavigationProps>()
   const { id } = route.params
 
   const user = useStore($user)!
@@ -61,6 +65,18 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
         </View>
 
         <View style={styles.commandBar}>
+          {status === 'friend' && (
+            <IconButton
+              icon="chat"
+              mode="contained"
+              style={styles.commandBarButton}
+              onPress={() => {
+                selectChat(foundUser)
+                navigation.navigate('Conversation')
+              }}
+            />
+          )}
+
           {foundUser.info && (
             <IconButton
               icon="crosshairs-gps"

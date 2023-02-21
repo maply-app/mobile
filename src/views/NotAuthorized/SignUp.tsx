@@ -189,6 +189,7 @@ export function SignUp() {
 const styles = StyleSheet.create({
   button: {
     alignSelf: 'stretch',
+    borderRadius: 15,
     marginTop: 24,
   },
 

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import {
-  StyleSheet, Text, View,
+  StyleSheet, Text, View, TextInput,
 } from 'react-native'
-import { ActivityIndicator, TextInput } from 'react-native-paper'
+import { ActivityIndicator } from 'react-native-paper'
 import { useStore } from 'effector-react'
 import { useDebouncedValue } from '@mantine/hooks'
 import { $user } from '../../../effector/user/store'
@@ -30,11 +30,13 @@ export function Search() {
       <View style={styles.content}>
         <Text style={styles.title}>Поиск пользователей</Text>
 
+        <Text style={styles.label}>Имя пользователя</Text>
         <TextInput
-          mode="outlined"
-          label="Введите имя пользователя"
+          placeholder="Введите имя пользователя"
           onChangeText={setQuery}
           autoCapitalize="none"
+          placeholderTextColor={themes.dark.primaryColor}
+          style={styles.field}
         />
 
         {!isLoading && filteredUsers && (filteredUsers.length > 0 && (
@@ -82,12 +84,31 @@ const styles = StyleSheet.create({
     paddingVertical: 24,
   },
 
+  field: {
+    backgroundColor: themes.dark.secondaryBackgroundColor,
+    borderRadius: 8,
+    borderWidth: 0,
+
+    color: 'white',
+    marginBottom: 6,
+
+    marginTop: 6,
+    padding: 12,
+  },
+
   friendButton: {
     marginLeft: 'auto',
   },
 
   indicator: {
     marginTop: '8%',
+  },
+
+  label: {
+    color: themes.dark.primaryColor,
+    fontSize: 16,
+    marginBottom: 6,
+    marginTop: 12,
   },
 
   statusText: {
@@ -100,7 +121,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: 'bold',
-    marginBottom: 48,
+    marginBottom: 24,
   },
 
   userContainer: {

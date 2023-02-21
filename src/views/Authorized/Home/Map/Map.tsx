@@ -4,13 +4,16 @@ import { StyleSheet, View } from 'react-native'
 import MapboxGL from '@rnmapbox/maps'
 import { useStore } from 'effector-react'
 import { IconButton } from 'react-native-paper'
+import { useNavigation } from '@react-navigation/native'
 import { $friends, $user } from '../../../../effector/user/store'
 import { useBottomSheetNavigation } from '../../../../hooks/useBottomSheetNavigation'
 import {
-  changeBounds, changeMapCameraRef, changeZoom,
+  changeMapCameraRef, changeZoom,
 } from '../../../../effector/ui/relations'
 import { UserMarker } from './Marker'
 import { useMapStyles } from './useMapStyles'
+import { themes } from '../../../../const/theme'
+import { NavigationProps } from '../../../../types/navigation'
 
 export function Map() {
   const user = useStore($user)!
@@ -18,6 +21,8 @@ export function Map() {
 
   const { coords } = user.info!.coords!.geo
   const navigate = useBottomSheetNavigation()
+
+  const navigation = useNavigation<NavigationProps>()
 
   const cameraRef = useRef<MapboxGL.Camera>(null)
   const styleUrl = useMapStyles()
@@ -44,6 +49,14 @@ export function Map() {
     <>
       <View style={styles.buttonsView}>
         <IconButton
+          style={styles.chatButton}
+          icon="chat"
+          mode="contained"
+          size={30}
+          onPress={() => navigation.navigate('Conversations')}
+        />
+
+        <IconButton
           style={styles.gpsButton}
           icon="crosshairs-gps"
           mode="contained"
@@ -57,7 +70,6 @@ export function Map() {
         scaleBarEnabled={false}
         onRegionIsChanging={(region) => {
           changeZoom(region.properties.zoomLevel)
-          changeBounds(region.properties.visibleBounds)
         }}
         styleURL={styleUrl}
       >
@@ -84,14 +96,21 @@ export function Map() {
 const styles = StyleSheet.create({
   buttonsView: {
     backgroundColor: 'transparent',
+    display: 'flex',
+    flexDirection: 'row',
     position: 'absolute',
-    right: 48,
+    right: 12,
     top: 48,
-    width: 30,
+
     zIndex: 2,
   },
 
-  gpsButton: { backgroundColor: '#171717' },
+  chatButton: {
+    backgroundColor: themes.dark.backgroundColor,
+    height: 48,
+    width: 48,
+  },
+  gpsButton: { backgroundColor: themes.dark.backgroundColor },
 
   mapView: {
     flex: 1,

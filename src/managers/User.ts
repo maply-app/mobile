@@ -20,6 +20,8 @@ const config = {
 }
 
 export class UserManager {
+  public static initialized = false
+
   private static batterySubscription: Subscription
 
   private static geoUpdated = false
@@ -69,11 +71,15 @@ export class UserManager {
           direction: result.coords.heading,
         }))
     }, 3000) as unknown as number
+
+    this.initialized = true
   }
 
   static stopWatch() {
     UserManager.batterySubscription.remove()
     void stopLocationUpdatesAsync(LOCATION_TRACKING)
     clearInterval(UserManager.intervalId)
+
+    this.initialized = false
   }
 }

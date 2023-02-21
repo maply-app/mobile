@@ -1,8 +1,17 @@
-import axios, { CreateAxiosDefaults } from 'axios'
-import { host } from '../const/web'
+import axios, { AxiosError, CreateAxiosDefaults } from 'axios'
+import { apiHost } from '../const/web'
+import { isUnauthorized } from './utils/isUnauthorized'
 
 const config: CreateAxiosDefaults = {
-  baseURL: `${host}/api/v1`,
+  baseURL: `${apiHost}/api/v1`,
 }
 
 export const axiosInstance = axios.create(config)
+
+axiosInstance.interceptors.response.use(null, (reason: AxiosError) => {
+  if (reason.config?.headers.Authorization) {
+    isUnauthorized(reason)
+  }
+
+  return reason
+})

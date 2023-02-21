@@ -75,7 +75,7 @@ export function FriendButton({
   const pending = useStore($pending)
 
   if (user.id === foundUser.id) {
-    return <Button disabled>Это вы</Button>
+    return <Button disabled labelStyle={{ color: 'white', opacity: 0.5 }}>Это вы</Button>
   }
 
   const userInfo = getUserStatus(foundUser.id, friends, requests)

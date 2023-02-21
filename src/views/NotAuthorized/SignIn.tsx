@@ -13,8 +13,8 @@ import { signIn } from '../../effector/user/events'
 import { themes } from '../../const/theme'
 
 export function SignIn() {
-  const [email, setEmail] = useState(__DEV__ ? 'user2@example.com' : '')
-  const [password, setPassword] = useState(__DEV__ ? 'Q1w1e1r1t1y!@' : '')
+  const [email, setEmail] = useState(__DEV__ ? 'test@tesst.com' : '')
+  const [password, setPassword] = useState(__DEV__ ? 'Q1w1e1r1t1y!' : '')
 
   const logo = useAssets(require('../../assets/logo.png'))[0]!
 

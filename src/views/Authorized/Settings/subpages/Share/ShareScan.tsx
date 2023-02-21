@@ -1,16 +1,19 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, {
+  useEffect, useRef,
+} from 'react'
 import { Portal } from '@gorhom/portal'
-import { BarCodeScanningResult, Camera, Point } from 'expo-camera'
+import { BarCodeScanningResult, Camera } from 'expo-camera'
 import { BarCodeScanner } from 'expo-barcode-scanner'
 import { useWindowDimensions } from 'react-native'
 import { SheetManager } from 'react-native-actions-sheet'
-import Svg, { Path } from 'react-native-svg'
 import { useCameraPermissions } from 'expo-image-picker'
 
 export function ShareScan() {
   const { width, height } = useWindowDimensions()
-  const [codeBounds, setCodeBounds] = useState<Point[]>()
   const [permissions, requestPermissions] = useCameraPermissions()
+
+  const timeoutId = useRef(-1)
+  const lastQrData = useRef<string>()
 
   useEffect(() => {
     if (!permissions) {
@@ -19,35 +22,35 @@ export function ShareScan() {
   }, [permissions])
 
   function onScanned(result: BarCodeScanningResult) {
-    console.log(result.bounds)
-    setCodeBounds(result.cornerPoints)
-  }
+    if (lastQrData.current !== result.data) {
+      if (timeoutId.current !== -1) {
+        clearTimeout(timeoutId.current)
+      }
 
-  function getPath(bounds: Point[]) {
-    return `M ${bounds.map((point) => `${point.x},${point.y}`).join(',')},${bounds[0].x},${bounds[0].y}`
-  }
+      lastQrData.current = result.data
 
-  function parseCode(code: string) {
-    if (!code.startsWith('maply/user')) {
-      return
+      timeoutId.current = setTimeout(() => {
+        if (!result.data.startsWith('maply/user')) {
+          return
+        }
+
+        const payload = result.data
+          .substring('maply/user/'.length, result.data.length)
+          .split('/')
+
+        void SheetManager.show('scanned-user', {
+          payload: {
+            userName: payload[0]!,
+            name: payload[1]!,
+            id: payload[2],
+            avatar: payload[3],
+          },
+        })
+
+        lastQrData.current = undefined
+        timeoutId.current = -1
+      }, 1500) as unknown as number
     }
-
-    const payload = code
-      .substring('maply/user/'.length, code.length)
-      .split('/')
-
-    void SheetManager.show('user-profile', {
-      payload: {
-        userName: payload[0]!,
-        name: payload[1]!,
-        id: payload[2],
-        avatar: payload[3],
-      },
-    })
-  }
-
-  if (codeBounds) {
-    console.log(getPath(codeBounds))
   }
 
   if (!permissions) {
@@ -60,12 +63,6 @@ export function ShareScan() {
 
   return (
     <Portal hostName="OuterContentHost">
-      <Svg style={{ position: 'absolute', zIndex: 2 }} width={width} height={height}>
-        {codeBounds && (
-        <Path d={getPath(codeBounds)} fill="red" />
-        )}
-      </Svg>
-
       <Camera
         style={{ width, height }}
         barCodeScannerSettings={{

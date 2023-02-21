@@ -8,10 +8,12 @@ import { getUser } from '../../../api/methods/getUser'
 
 export const sendRequestFx = createEffect(
   async (user: User | FriendRequestUser): Promise<SentRequest> => {
-    const result = await axiosInstance.post<ApiAnswer<{ id: string }>>('/friends/requests/send', { receiverID: user.id })
+    const result = await axiosInstance
+      .post<ApiAnswer<{ id: string }>>('/friends/requests/send', { receiverID: user.id })
+
     const receiver = await getUser(user?.id)
 
-    if (!receiver) {
+    if (!receiver || !result) {
       throw new Error('Broken friend request')
     }
 

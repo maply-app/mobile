@@ -1,4 +1,5 @@
 import { UserInfo } from './user'
+import { ApiMessage } from './chat'
 
 interface EventEmitter {
   id: string;
@@ -14,7 +15,8 @@ export enum WebsocketEventType {
   ConfirmRequest = 'confirmRequest',
   DeleteFriend = 'deleteFriend',
   FriendsStats = 'friendsStats',
-  // TO DO REQUEST RECEIVED
+  NewMessage = 'newMessage',
+  MessagesRead = 'readMessages'
 }
 
 type WebSocketData<T extends WebsocketEventType, U extends object> = { event: T, data: U };
@@ -24,4 +26,6 @@ export type WebSocketPayload =
   WebSocketData<WebsocketEventType.DeleteFriend, { id: string }> | // id = user id
   WebSocketData<WebsocketEventType.SendRequest, { id: string, sender: EventEmitter }> |
   WebSocketData<WebsocketEventType.ConfirmRequest, { id: string; receiverID: string; receiver: EventEmitter }> | // request id
-  WebSocketData<WebsocketEventType.FriendsStats, { [key: string]: UserInfo }>
+  WebSocketData<WebsocketEventType.FriendsStats, { [key: string]: UserInfo }> |
+  WebSocketData<WebsocketEventType.NewMessage, ApiMessage> |
+  WebSocketData<WebsocketEventType.MessagesRead, { userId: string }>

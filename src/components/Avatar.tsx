@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Image, ImageStyle, Text, View,
 } from 'react-native'
@@ -43,6 +43,12 @@ function getAvatarColors(nick: string) {
 export function Avatar({
   size = 48, radius = 100, style, user,
 }: Props) {
+  const [showInitials, setShowInitials] = useState(!user.avatar)
+
+  useEffect(() => {
+    setShowInitials(!user.avatar)
+  }, [user.avatar])
+
   function getAvatar(avatar: string) {
     if (avatar && avatar.startsWith('file')) {
       return avatar
@@ -51,21 +57,24 @@ export function Avatar({
     return `${avatarsURL}/${avatar}`
   }
 
-  if (!user.avatar) {
+  if (showInitials || !user.avatar) {
     if (user.username) {
       const colors = getAvatarColors(user.username)
       const initialsSize = size / 2
 
       return (
         <View
-          style={{
-            width: size,
-            height: size,
-            backgroundColor: colors.background,
-            borderRadius: radius,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          style={[
+            {
+              width: size,
+              height: size,
+              backgroundColor: colors.background,
+              borderRadius: radius,
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+            style,
+          ]}
         >
           <Text
             style={{ color: colors.initials, fontWeight: 'bold', fontSize: initialsSize }}
@@ -83,6 +92,7 @@ export function Avatar({
     <Image
       style={[{ width: size, height: size, borderRadius: radius }, style]}
       source={{ uri: getAvatar(user.avatar) }}
+      onError={() => setShowInitials(true)}
     />
   )
 }

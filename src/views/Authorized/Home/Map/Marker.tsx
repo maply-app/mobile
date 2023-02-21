@@ -13,9 +13,8 @@ import Icon from 'react-native-vector-icons/FontAwesome5'
 import MapboxGL from '@rnmapbox/maps'
 import LinearGradient from 'react-native-linear-gradient'
 import { useStore } from 'effector-react'
-import { User, UserInfo } from '../../../../types/user'
+import { User } from '../../../../types/user'
 import { $map } from '../../../../effector/ui/store'
-import { Position } from '../../../../types/map'
 import { Avatar } from '../../../../components/Avatar'
 
 interface Props {
@@ -35,18 +34,6 @@ function getBatteryIcon(percentage = 0) {
   }
 
   return 'battery-full'
-}
-
-function checkIfInBounds(
-  bounds: Position[],
-  coords: { lon: number, lat: number },
-) {
-  return (
-    bounds[0][0] + 0.1 >= coords.lon
-    && bounds[1][0] - 0.1 <= coords.lon
-    && bounds[0][1] + 0.1 >= coords.lat
-    && bounds[1][1] - 0.1 <= coords.lat
-  )
 }
 
 export function UserMarker({ user, onPress }: Props) {
@@ -125,10 +112,6 @@ export function UserMarker({ user, onPress }: Props) {
       )
     }
   }, [onlineAnimationValueX, onlineAnimationValueY, userInfo.isOnline])
-
-  if (!checkIfInBounds(map.bounds, info.geo.coords)) {
-    return null
-  }
 
   return (
     <>

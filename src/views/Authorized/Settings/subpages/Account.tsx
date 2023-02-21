@@ -50,7 +50,7 @@ export function Account() {
           <Text style={styles.label}>Ник пользователя</Text>
           <TextInput
             value={formikProps.values.username}
-            onChangeText={formikProps.handleChange('nickname')}
+            onChangeText={formikProps.handleChange('username')}
             style={styles.input}
           />
         </View>

@@ -1,7 +1,13 @@
 import { webSocketURL } from '../const/web'
 import { WebsocketEventType, WebSocketPayload } from '../types/ws'
 import {
-  friendRemoved, requestDeclined, requestReceived, wsRequestAccepted, wsUpdateFriendsLocation,
+  friendRemoved,
+  requestDeclined,
+  requestReceived,
+  wsMessageReceived,
+  wsMessagesRead,
+  wsRequestAccepted,
+  wsUpdateFriendsLocation,
 } from '../effector/user/events'
 
 interface Config { token: string, reconnect: boolean }
@@ -11,42 +17,31 @@ export class WebSocketManager {
 
   private static connection: WebSocket
 
-  private static readonly config: Config
+  private static config: Config
 
   private static initialize(config: Config) {
+    this.config = config
     const connection = new WebSocket(`${webSocketURL}?Token=${config.token}`)
 
-    connection.onopen = WebSocketManager.onOpen
-    connection.onclose = WebSocketManager.onClose
-    connection.onmessage = WebSocketManager.onMessage
+    connection.onopen = () => console.log('Opened')
+    connection.onclose = WebSocketManager.onClose.bind(this)
+    connection.onmessage = WebSocketManager.onMessage.bind(this)
 
     return connection
   }
 
-  private static onOpen() {
-    console.log('WEBSOCKET CONNECTION SUCCESSFULLY OPENED')
-    this.open = true
-  }
-
   private static onClose() {
-    console.log('WEBSOCKET CONNECTION CLOSED')
-    this.open = false
+    if (this.open) {
+      this.open = false
 
-    if (this.config.reconnect) {
-      this.initialize(this.config)
+      if (this.config.reconnect) {
+        this.initialize(this.config)
+      }
     }
   }
 
   private static onMessage(event: MessageEvent) {
     const payload = <WebSocketPayload>JSON.parse(event.data)
-
-    if (payload.event !== WebsocketEventType.FriendsStats) {
-      console.log(
-        `WEBSOCKET EVENT TYPE: ${payload.event} VALUE: ${JSON.stringify(
-          payload.data,
-        )}`,
-      )
-    }
 
     switch (payload.event) {
       case WebsocketEventType.FriendsStats: {
@@ -74,6 +69,14 @@ export class WebSocketManager {
         requestDeclined(payload.data.id)
         break
       }
+      case WebsocketEventType.MessagesRead: {
+        wsMessagesRead(payload.data.userId)
+        break
+      }
+      case WebsocketEventType.NewMessage: {
+        wsMessageReceived(payload.data)
+        break
+      }
       default: {
         break
       }
@@ -82,6 +85,7 @@ export class WebSocketManager {
 
   public static openConnection(config: Config) {
     if (!WebSocketManager.open) {
+      this.open = true
       WebSocketManager.connection = WebSocketManager.initialize(config)
     }
   }

@@ -9,13 +9,12 @@ import {
   requestReceived,
   requestSent, sendRequest, signIn,
   signOut, signUp, updateInfo, updateSettings, wsRequestAccepted,
-  wsUpdateFriendsLocation,
+  wsUpdateFriendsLocation, wsMessageReceived, wsMessagesRead, getMessages, addChat, sendMessage,
 } from './events'
 import {
   getProfileFx,
   getTokenFromStoreFx,
   getUserRequestsFx,
-  setupManagersFx,
   signInFx,
   signUpFx,
   updateInfoFx,
@@ -25,6 +24,10 @@ import {
 import {
   acceptRequestFx, declineRequestFx, removeFriendFx, sendRequestFx, wsRequestAcceptedFx,
 } from './effects/friends'
+import { Chat } from '../../types/chat'
+import {
+  getChatsFx, getMessagesFx, messageReceivedFx, sendMessageFx,
+} from './effects/chat'
 
 export const $token = createStore<string | null>(null)
   .on(getTokenFromStoreFx.doneData, (_, payload) => payload)
@@ -85,7 +88,52 @@ export const $requests = createStore<RequestsStore>({ sent: [], received: [] })
   }))
   .on(signOut, () => ({ sent: [], received: [] }))
 
-const $managersSetuped = createStore(false)
+export const $chats = createStore<Chat[]>([])
+  .on(addChat, (chats, payload) => [...chats, payload])
+  .on(getChatsFx.doneData, (_, payload) => payload)
+  .on(getMessagesFx.doneData, (chats, payload) => {
+    for (const chat of chats) {
+      if (chat.user.id === payload.chat.user.id) {
+        chat.messages.push(...payload.messages)
+      }
+    }
+
+    return [...chats]
+  })
+  .on(wsMessagesRead, (chats, userId) => {
+    for (const chat of chats) {
+      if (chat.user.id === userId) {
+        for (const message of chat.messages) {
+          message.isRead = true
+        }
+      }
+    }
+
+    return [...chats]
+  })
+  .on(messageReceivedFx.doneData, (chats, payload) => {
+    if (!payload) return chats
+
+    for (const chat of chats) {
+      if (chat.user.id === payload.chat.user.id) {
+        chat.messages.unshift(payload.message)
+      }
+    }
+
+    return [...chats]
+  })
+  .on(sendMessageFx.doneData, (chats, payload) => {
+    const target = chats.find((chat) => chat.user.id === payload.for.user.id)
+
+    if (!target) {
+      payload.for.messages.unshift(payload.message)
+      return [...chats, payload.for]
+    }
+
+    target.messages.unshift(payload.message)
+    return [...chats]
+  })
+  .on(signOut, () => [])
 
 sample({
   clock: getToken,
@@ -117,14 +165,6 @@ sample({
   source: $user,
   fn: (user, infoToUpdate) => ({ user, infoToUpdate }),
   target: updateInfoFx,
-})
-
-sample({
-  clock: getProfileFx.doneData,
-  source: { token: $token, managersSetuped: $managersSetuped, pending: setupManagersFx.pending },
-  filter: ({ managersSetuped, pending }) => !managersSetuped && !pending,
-  fn: (source, user) => ({ user, token: source.token }),
-  target: setupManagersFx,
 })
 
 guard({
@@ -208,4 +248,33 @@ sample({
 sample({
   clock: wsRequestAccepted,
   target: wsRequestAcceptedFx,
+})
+
+sample({
+  clock: wsMessageReceived,
+  source: $chats,
+  target: messageReceivedFx,
+
+  fn: (chats, message) => ({ chats, message }),
+})
+
+sample({
+  clock: getMessages,
+  source: $user,
+  target: getMessagesFx,
+
+  filter: (user) => user !== null,
+  fn: (user, payload) => ({ user: user as User, chat: payload.chat, offset: payload.offset }),
+})
+
+sample({
+  clock: sendMessage,
+  target: sendMessageFx,
+})
+
+sample({
+  clock: getProfileFx.doneData,
+
+  fn: (user) => ({ user, count: 25, offset: 0 }),
+  target: getChatsFx,
 })

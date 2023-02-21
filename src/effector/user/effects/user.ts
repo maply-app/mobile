@@ -3,13 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { axiosInstance } from '../../../api'
 import { RequestsApiAnswer, NetworkRequestAnswer } from '../../../types/web'
 import {
+  signOut,
   SignUpEventProps, UpdateSettingsEventProps, UpdateUserInfoProps,
 } from '../events'
 import {
   ReceivedRequest, SentRequest, User, UserInfo,
 } from '../../../types/user'
-import { UserManager } from '../../../managers/User'
-import { WebSocketManager } from '../../../managers/WebSocket'
+import { mediaHost } from '../../../const/web'
 
 export const updateTokenFx = createEffect(async (token: string | null) => {
   if (token) {
@@ -17,7 +17,7 @@ export const updateTokenFx = createEffect(async (token: string | null) => {
     axiosInstance.defaults.headers.Authorization = `Bearer ${token}`
   } else {
     await AsyncStorage.removeItem('@accessToken')
-    axiosInstance.defaults.headers.Authorization = ''
+    delete axiosInstance.defaults.headers.Authorization
   }
 
   return true
@@ -47,27 +47,51 @@ export const getProfileFx = createEffect(
 )
 
 export const updateSettingsFx = createEffect(async ({ name, username, image } : UpdateSettingsEventProps) => {
-  const formData = new FormData()
+  const info: { name?: string; username?: string; avatar?: string } = {}
 
   if (name) {
-    formData.append('name', name)
+    info.name = name
   }
 
   if (username) {
-    formData.append('username', username)
+    info.username = username
   }
 
-  if (image && !image.cancelled && image.uri) {
-    const blob = await (fetch(image.uri).then((res) => res.blob()))
-    formData.append('avatar', blob)
-  }
+  if (image && !image.canceled && image.assets[0].uri) {
+    const asset = image.assets[0]!
+    const extension = asset.uri.split('.').pop() === 'jpg' ? 'jpeg' : asset.uri.split('.').pop()
 
-  await axiosInstance
-    .post('/users/settings', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    const blob = await (fetch(asset.uri).then((res) => res.blob()))
+    const request = new XMLHttpRequest()
+
+    request.responseType = 'json'
+    request.open('POST', `${mediaHost}/api/images/upload/`, true)
+    request.setRequestHeader('Content-Type', `image/${extension}`)
+    request.setRequestHeader('Authorization', `Bearer ${axiosInstance.defaults.headers.Authorization}`)
+
+    console.log(axiosInstance.defaults.headers.Authorization)
+    const promise = new Promise<{ data: { image: string } }>((resolve) => {
+      request.onloadend = () => {
+        if (request.readyState === XMLHttpRequest.DONE) {
+          console.log(request.response)
+          // resolve(request.response)
+        } else if (request.status === 401) {
+          signOut()
+        }
+      }
     })
+
+    request.send(blob)
+
+    await promise.then((result) => {
+      info.avatar = result.data.image
+    })
+  }
+
+  await (
+    axiosInstance
+      .post('/users/settings', info)
+  )
 
   await getProfileFx()
 })
@@ -105,26 +129,15 @@ export const updateInfoFx = createEffect(
 )
 
 export const getUserRequestsFx = createEffect(async () => Promise.all([
-  axiosInstance.get<RequestsApiAnswer<SentRequest>>('/friends/requests/sent'),
-  axiosInstance.get<RequestsApiAnswer<ReceivedRequest>>(
-    '/friends/requests/received',
-  ),
+  axiosInstance
+    .get<RequestsApiAnswer<SentRequest>>('/friends/requests/sent')
+    .catch((reason) => reason),
+  axiosInstance
+    .get<RequestsApiAnswer<ReceivedRequest>>(
+      '/friends/requests/received',
+    )
+    .catch((reason) => reason),
 ]).then((result) => ({
   sent: result[0].data.data ?? [],
   received: result[1].data.data ?? [],
 })))
-
-export const setupManagersFx = createEffect(
-  ({ token, user } : { token: string | null, user: User | null }) => {
-    if (user && token) {
-      UserManager.startWatch()
-      WebSocketManager.openConnection({
-        reconnect: true,
-        token,
-      })
-    } else {
-      UserManager.stopWatch()
-      WebSocketManager.closeConnection()
-    }
-  },
-)

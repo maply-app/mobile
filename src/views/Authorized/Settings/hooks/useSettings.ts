@@ -1,6 +1,7 @@
 import { useFormik } from 'formik'
 import { useState } from 'react'
 import { ImagePickerResult, launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
+import { reach } from 'yup'
 import { User } from '../../../../types/user'
 import { updateSettings } from '../../../../effector/user/events'
 
