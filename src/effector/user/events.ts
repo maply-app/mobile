@@ -24,7 +24,6 @@ export const signIn = createEvent<{ email: string; password: string }>()
 export const signOut = createEvent()
 export const signUp = createEvent<SignUpEventProps>()
 
-export const updateSettings = createEvent<UpdateSettingsEventProps>()
 export const updateInfo = createEvent<UpdateUserInfoProps | undefined>()
 
 export const sendRequest = createEvent<User | FriendRequestUser>()

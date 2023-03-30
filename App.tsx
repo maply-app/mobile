@@ -53,7 +53,6 @@ getToken()
 export default function App() {
   const token = useStore($token)
   const user = useStore($user)
-  const pending = useStore($pending)
 
   useEffect(() => {
     if (token) WebSocketManager.openConnection({ token, reconnect: true })
@@ -68,7 +67,7 @@ export default function App() {
     if (UserManager.initialized && !token) {
       UserManager.stopWatch()
     }
-  }, [token, pending.getProfile, user])
+  }, [token, user])
 
   if ((token && !user) || (user && !user?.info?.coords)) {
     return (

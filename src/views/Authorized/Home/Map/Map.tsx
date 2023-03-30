@@ -68,8 +68,8 @@ export function Map() {
       <MapboxGL.MapView
         style={styles.mapView}
         scaleBarEnabled={false}
-        onRegionIsChanging={(region) => {
-          changeZoom(region.properties.zoomLevel)
+        onCameraChanged={(state) => {
+          changeZoom(state.properties.zoom)
         }}
         styleURL={styleUrl}
       >

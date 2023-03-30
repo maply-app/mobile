@@ -1,12 +1,17 @@
 import { useFormik } from 'formik'
 import { useState } from 'react'
 import { ImagePickerResult, launchImageLibraryAsync, MediaTypeOptions } from 'expo-image-picker'
-import { reach } from 'yup'
 import { User } from '../../../../types/user'
-import { updateSettings } from '../../../../effector/user/events'
+import { updateSettingsFx } from '../../../../effector/user/effects/user'
+import { useNavigation } from '@react-navigation/native'
+import { useStore } from 'effector-react'
 
 export function useSettings(user: User) {
   const [image, setImage] = useState<ImagePickerResult>()
+  const { goBack } = useNavigation()
+
+  const isLoading = useStore(updateSettingsFx.pending)
+  const [isImageLoading, setIsImageLoading] = useState(false);
 
   const [avatar, setAvatar] = useState(user.avatar)
 
@@ -16,11 +21,11 @@ export function useSettings(user: User) {
       username: user.username,
     },
     onSubmit: (values) => {
-      updateSettings({
+      updateSettingsFx({
         name: values.name,
         username: values.username,
         image,
-      })
+      }).then(() => goBack())
     },
     onReset: () => {
       setAvatar(user.avatar)
@@ -28,6 +33,8 @@ export function useSettings(user: User) {
   })
 
   function openPicker() {
+    setIsImageLoading(true);
+
     const result = launchImageLibraryAsync({
       allowsEditing: true,
       mediaTypes: MediaTypeOptions.Images,
@@ -35,6 +42,8 @@ export function useSettings(user: User) {
     })
 
     result.then(((result) => {
+      setIsImageLoading(false);
+
       if (result.canceled) {
         return
       }
@@ -48,5 +57,8 @@ export function useSettings(user: User) {
     formikProps,
     openPicker,
     avatar,
+
+    isLoading,
+    isImageLoading
   }
 }

@@ -48,7 +48,7 @@ const baseMessageStyle: ViewStyle = {
 const styles = StyleSheet.create({
   message: {
     paddingHorizontal: 24,
-    paddingVertical: 8,
+    paddingVertical: 4,
   },
 
   notYour: {

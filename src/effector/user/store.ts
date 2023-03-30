@@ -8,7 +8,7 @@ import {
   requestDeclined,
   requestReceived,
   requestSent, sendRequest, signIn,
-  signOut, signUp, updateInfo, updateSettings, wsRequestAccepted,
+  signOut, signUp, updateInfo, wsRequestAccepted,
   wsUpdateFriendsLocation, wsMessageReceived, wsMessagesRead, getMessages, addChat, sendMessage,
 } from './events'
 import {
@@ -18,7 +18,6 @@ import {
   signInFx,
   signUpFx,
   updateInfoFx,
-  updateSettingsFx,
   updateTokenFx,
 } from './effects/user'
 import {
@@ -32,6 +31,7 @@ import {
 export const $token = createStore<string | null>(null)
   .on(getTokenFromStoreFx.doneData, (_, payload) => payload)
   .on(signInFx.doneData, (_, payload) => payload)
+  .on(getProfileFx.failData, () => null)
   .on(signOut, () => null)
 
 export const $friends = createStore<User[]>([])
@@ -161,11 +161,6 @@ sample({
 sample({
   clock: signUp,
   target: signUpFx,
-})
-
-sample({
-  clock: updateSettings,
-  target: updateSettingsFx,
 })
 
 sample({

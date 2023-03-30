@@ -5,7 +5,6 @@ import {
 } from 'react-native'
 import { Button } from 'react-native-paper'
 import { useNavigation } from '@react-navigation/native'
-import { $pending } from '../../../../effector/ui/store'
 import { $user } from '../../../../effector/user/store'
 import SafeArea from '../../../../components/SafeArea'
 import { useSettings } from '../hooks/useSettings'
@@ -14,11 +13,9 @@ import { themes } from '../../../../const/theme'
 
 export function Account() {
   const user = useStore($user)!
-  const pending = useStore($pending)
-
   const { goBack } = useNavigation()
 
-  const { formikProps, openPicker, avatar } = useSettings(user)
+  const { formikProps, openPicker, avatar, isLoading, isImageLoading } = useSettings(user)
 
   return (
     <SafeArea style={{ flex: 1 }}>
@@ -32,6 +29,8 @@ export function Account() {
             mode="contained"
             style={styles.button}
             onPress={openPicker}
+            disabled={isImageLoading}
+            loading={isImageLoading}
           >
             Изменить аватар
           </Button>
@@ -58,14 +57,15 @@ export function Account() {
         <View style={[styles.row, { marginTop: 32 }]}>
           <Button
             mode="contained"
-            disabled={pending.updateSettings}
+            loading={isLoading}
+            disabled={isLoading}
             onPress={formikProps.submitForm}
           >
             Применить настройки
           </Button>
 
           <Button
-            disabled={pending.updateSettings}
+            disabled={isLoading}
             style={styles.button}
             onPress={() => {
               formikProps.resetForm()

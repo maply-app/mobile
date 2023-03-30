@@ -50,49 +50,36 @@ export const updateSettingsFx = createEffect(async ({ name, username, image } : 
   const info: { name?: string; username?: string; avatar?: string } = {}
 
   if (name) {
-    info.name = name
+    info.name = name;
   }
 
   if (username) {
-    info.username = username
+    info.username = username;
   }
 
-  if (image && !image.canceled && image.assets[0].uri) {
-    const asset = image.assets[0]!
-    const extension = asset.uri.split('.').pop() === 'jpg' ? 'jpeg' : asset.uri.split('.').pop()
+  const asset = image?.assets?.[0]
+  if (image && !image.canceled && asset) {
+    const data = new FormData();
 
-    const blob = await (fetch(asset.uri).then((res) => res.blob()))
-    const request = new XMLHttpRequest()
+    let filename = asset.uri.split('/').pop()!;
 
-    request.responseType = 'json'
-    request.open('POST', `${mediaHost}/api/images/upload/`, true)
-    request.setRequestHeader('Content-Type', `image/${extension}`)
-    request.setRequestHeader('Authorization', `Bearer ${axiosInstance.defaults.headers.Authorization}`)
+    data.append('image', {
+      uri: asset.uri,
+      name: filename,
+      type: filename.split('.').pop()!
+    } as any)
 
-    console.log(axiosInstance.defaults.headers.Authorization)
-    const promise = new Promise<{ data: { image: string } }>((resolve) => {
-      request.onloadend = () => {
-        if (request.readyState === XMLHttpRequest.DONE) {
-          console.log(request.response)
-          // resolve(request.response)
-        } else if (request.status === 401) {
-          signOut()
-        }
+    const result = await (axiosInstance.post(`${mediaHost}/api/images/upload/`, data, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
       }
-    })
+    }))
 
-    request.send(blob)
-
-    await promise.then((result) => {
-      info.avatar = result.data.image
-    })
+    
+    info.avatar = result.data.data.image;
   }
 
-  await (
-    axiosInstance
-      .post('/users/settings', info)
-  )
-
+  await axiosInstance.post('/users/settings', info)
   await getProfileFx()
 })
 
