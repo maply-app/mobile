@@ -19,7 +19,7 @@ import { Conversation } from './src/views/Authorized/Conversations/Conversation/
 import { SignIn } from './src/views/NotAuthorized/SignIn'
 import { SignUp } from './src/views/NotAuthorized/SignUp'
 import { Home } from './src/views/Authorized/Home/Home'
-import { getProfile, getToken } from './src/effector/user/events'
+import { getToken } from './src/effector/user/events'
 import { $pending } from './src/effector/ui/store'
 import { UserManager } from './src/managers/User'
 import { Settings as SettingsPage } from './src/views/Authorized/Settings/Settings'
@@ -61,10 +61,6 @@ export default function App() {
   }, [token])
 
   useEffect(() => {
-    if (token && !pending.getProfile && !user) {
-      getProfile()
-    }
-
     if (user && !UserManager.initialized) {
       UserManager.startWatch()
     }

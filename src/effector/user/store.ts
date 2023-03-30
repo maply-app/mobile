@@ -141,6 +141,14 @@ sample({
 })
 
 sample({
+  clock: updateTokenFx.doneData,
+  source: $token,
+
+  filter: (token) => Boolean(token),
+  target: getProfileFx,
+})
+
+sample({
   clock: signIn,
   target: signInFx,
 })
