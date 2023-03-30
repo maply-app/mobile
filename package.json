@@ -7,11 +7,15 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "start": "expo start --dev-client",
+
     "dev-build:ios-simulator": "eas build --profile development-simulator --platform ios",
     "dev-build:ios-device": "eas build --profile development --platform ios",
     "emulator-install:ios": "eas build:run -p ios",
+
     "dev-build:android": "eas build --profile development --platform android",
-    "emulator-install:android": "eas build:run -p android"
+    "emulator-install:android": "eas build:run -p android",
+
+    "build-preview": "eas build --profile preview --platform ios"
   },
   "dependencies": {
     "expo": "~48.0.9",

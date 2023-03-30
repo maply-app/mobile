@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   StyleSheet, Text, View, ViewStyle,
 } from 'react-native'
@@ -9,11 +9,18 @@ import { themes } from '../../../../const/theme'
 interface Props {
   message: MessageDTO;
   userId: string;
+
+  position: 'first' | 'middle' | 'last'
 }
 
-export function Message({ message, userId }: Props) {
+export function Message({ message, userId, position }: Props) {
+  const style = useMemo(() => ({
+    paddingTop: position === 'first' ? 8 : 4,
+    paddingBottom: position === 'last' ? 8 : 4
+  }), [position])
+
   return (
-    <View style={styles.message}>
+    <View style={[styles.message, style]}>
       <View style={message.sender.id === userId ? styles.your : styles.notYour}>
         <Text style={styles.text}>{message.text}</Text>
         <View style={{ marginLeft: 'auto', flexDirection: 'row' }}>

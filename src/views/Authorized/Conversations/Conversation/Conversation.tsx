@@ -24,6 +24,18 @@ function BackIcon({ color }: { color: string }) {
   return <Icon name="chevron-left" size={26} color={color} />
 }
 
+function getPosition(index: number, length: number) {
+  if (index === 0) {
+    return 'last'
+  }
+
+  if (index === length - 1) {
+    return 'first'
+  }
+
+  return 'middle'
+}
+
 export function Conversation() {
   const user = useStore($user)!
   const chat = useCurrentChat()
@@ -86,7 +98,7 @@ export function Conversation() {
             inverted
             estimatedItemSize={70}
             data={messages}
-            renderItem={({ item }) => <Message userId={user.id} message={item} />}
+            renderItem={({ item, index }) => <Message position={getPosition(index, messages.length)} userId={user.id} message={item} />}
           />
         </View>
       )}
