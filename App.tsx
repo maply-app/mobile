@@ -8,7 +8,6 @@ import MapboxGL from '@rnmapbox/maps'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useStore } from 'effector-react'
-import { ThemeProp } from 'react-native-paper/lib/typescript/types'
 import { MD3DarkTheme as DefaultTheme, Provider } from 'react-native-paper'
 import { PortalProvider } from '@gorhom/portal'
 import { registerSheet, SheetProvider } from 'react-native-actions-sheet'
@@ -29,6 +28,7 @@ import { Account } from './src/views/Authorized/Settings/subpages/Account'
 import { ScannedUserSheet } from './src/views/Authorized/Settings/subpages/Share/ScannedUserSheet'
 import { themes } from './src/const/theme'
 import { WebSocketManager } from './src/managers/WebSocket'
+import { ThemeProp } from 'react-native-paper/lib/typescript/src/types'
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoibW92cHVzaG1vdiIsImEiOiJjbDBnaTB6aXcxMzc5M2Vwcm53b2xrajlmIn0.Zl55a5v_Tr2Sso_WDA_xsw',
