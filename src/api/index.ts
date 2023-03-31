@@ -11,34 +11,34 @@ export const axiosInstance = axios.create(config)
 function log() {
   const urlToSkip = ['/users/stats']
 
-  axiosInstance.interceptors.response.use(result => {
-    const url = result.config.url;
+  axiosInstance.interceptors.response.use((result) => {
+    const { url } = result.config
 
     if (urlToSkip.includes(url!)) {
-      return result;
+      return result
     }
 
-    const content = JSON.stringify(result.data);
+    const content = JSON.stringify(result.data)
     const message = `[${result.status} RESPONSE FROM URL ${url}]: ${content}`
 
-    console.log(message);
+    console.log(message)
 
-    return result;
+    return result
   })
 
-  axiosInstance.interceptors.request.use(request => {
-    const url = request.url;
+  axiosInstance.interceptors.request.use((request) => {
+    const { url } = request
 
     if (urlToSkip.includes(url!)) {
-      return request;
+      return request
     }
 
-    const content = JSON.stringify(request.data);
+    const content = JSON.stringify(request.data)
     const message = `[REQUEST TO URL ${url}]: ${content}`
 
-    console.log(message);
+    console.log(message)
 
-    return request;
+    return request
   })
 }
 
@@ -49,3 +49,5 @@ axiosInstance.interceptors.response.use(null, (reason: AxiosError) => {
 
   return reason
 })
+
+if (__DEV__) log()

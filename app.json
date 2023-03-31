@@ -24,6 +24,14 @@
           "RNMapboxMapsImpl": "mapbox",
           "RNMapboxMapsDownloadToken": "sk.eyJ1IjoibW92cHVzaG1vdiIsImEiOiJjbGN1enZrbDMwMmN4M3JvemozaTlwbHViIn0.Hbm-h5dreyAEZ08wdn-MaA"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "flipper": true
+          }
+        }
       ]
     ],
     "ios": {
@@ -38,7 +46,8 @@
           "fetch"
         ]
       },
-      "bundleIdentifier": "com.movpushmov.maply"
+      "bundleIdentifier": "com.movpushmov.maply",
+      "buildNumber": "3"
     },
     "android": {
       "adaptiveIcon": {

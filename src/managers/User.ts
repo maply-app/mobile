@@ -1,6 +1,7 @@
 import { addBatteryLevelListener, Subscription } from 'expo-battery'
 import {
-  getCurrentPositionAsync,
+  getBackgroundPermissionsAsync,
+  getCurrentPositionAsync, getForegroundPermissionsAsync,
   LocationAccuracy, LocationObject,
   startLocationUpdatesAsync,
   stopLocationUpdatesAsync,
@@ -56,6 +57,14 @@ export class UserManager {
     })
 
     void startLocationUpdatesAsync(LOCATION_TRACKING, config)
+
+    getCurrentPositionAsync(config)
+      .then((result) => updateInfo({
+        lat: result.coords.latitude,
+        lon: result.coords.longitude,
+        speed: (result.coords.speed ?? 0) * 3.6,
+        direction: result.coords.heading,
+      }))
 
     UserManager.intervalId = setInterval(() => {
       if (UserManager.geoUpdated) {

@@ -25,7 +25,7 @@ type UserStatus =
   data: ReceivedRequest;
 };
 
-function getUserStatus(
+export function getUserStatus(
   userId: string,
   friends: User[],
   requests: { sent: SentRequest[], received: ReceivedRequest[] },
@@ -79,6 +79,7 @@ export function FriendButton({
   }
 
   const userInfo = getUserStatus(foundUser.id, friends, requests)
+
   switch (userInfo.status) {
     case 'friend': {
       return onlyIcon ? (

@@ -83,7 +83,7 @@ export const $requests = createStore<RequestsStore>({ sent: [], received: [] })
     received: state.received.filter((request) => request.id !== payload),
   }))
   .on(requestDeclined, (state, payload) => ({
-    sent: state.sent,
+    sent: state.sent.filter((request) => request.id !== payload),
     received: state.received.filter((request) => request.id !== payload),
   }))
   .on(signOut, () => ({ sent: [], received: [] }))

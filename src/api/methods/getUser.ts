@@ -7,4 +7,5 @@ export function getUser(id?: string): Promise<User | null> {
       id !== undefined ? `/users/get-by-id?userId=${id}` : '/users/get',
     )
     .then((result) => result.data.data)
+    .catch(() => null)
 }

@@ -50,33 +50,32 @@ export const updateSettingsFx = createEffect(async ({ name, username, image } : 
   const info: { name?: string; username?: string; avatar?: string } = {}
 
   if (name) {
-    info.name = name;
+    info.name = name
   }
 
   if (username) {
-    info.username = username;
+    info.username = username
   }
 
   const asset = image?.assets?.[0]
   if (image && !image.canceled && asset) {
-    const data = new FormData();
+    const data = new FormData()
 
-    let filename = asset.uri.split('/').pop()!;
+    const filename = asset.uri.split('/').pop()!
 
     data.append('image', {
       uri: asset.uri,
       name: filename,
-      type: filename.split('.').pop()!
+      type: filename.split('.').pop()!,
     } as any)
 
     const result = await (axiosInstance.post(`${mediaHost}/api/images/upload/`, data, {
       headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+        'Content-Type': 'multipart/form-data',
+      },
     }))
 
-    
-    info.avatar = result.data.data.image;
+    info.avatar = result.data.data.image
   }
 
   await axiosInstance.post('/users/settings', info)
@@ -101,9 +100,11 @@ export const updateInfoFx = createEffect(
       isOnline: true,
     }
 
+    const speed = Math.trunc((infoToUpdate?.speed ?? info.geo.speed) * 3.6)
+
     info.geo.coords.lat = infoToUpdate?.lat ?? info.geo.coords.lat
     info.geo.coords.lon = infoToUpdate?.lon ?? info.geo.coords.lon
-    info.geo.speed = Math.trunc((infoToUpdate?.speed ?? info.geo.speed) * 3.6)
+    info.geo.speed = speed < 0 ? 0 : speed
     info.geo.direction = Math.trunc(infoToUpdate?.direction ?? info.geo.direction)
     info.info.battery = infoToUpdate?.battery ?? info.info.battery
     info.isOnline = true

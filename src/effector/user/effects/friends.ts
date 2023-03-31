@@ -27,6 +27,7 @@ export const sendRequestFx = createEffect(
 
 export const declineRequestFx = createEffect(
   async (request: SentRequest | ReceivedRequest) => {
+    console.log(request.id)
     await axiosInstance.get(`/friends/requests/cancel?requestID=${request.id}`)
     return request.id
   },

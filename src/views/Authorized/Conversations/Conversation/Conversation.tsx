@@ -11,6 +11,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
 import { useStore } from 'effector-react'
 import { FlashList } from '@shopify/flash-list'
+import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated'
 import SafeArea from '../../../../components/SafeArea'
 import { getMessages, sendMessage } from '../../../../effector/user/events'
 import { themes } from '../../../../const/theme'
@@ -44,6 +45,11 @@ export function Conversation() {
 
   const navigation = useNavigation()
   const { bottom } = useSafeAreaInsets()
+
+  const { height } = useAnimatedKeyboard()
+  const keyboardBlockStyles = useAnimatedStyle(() => ({
+    height: height.value,
+  }), [height.value])
 
   const [message, setMessage] = useState('')
   const messages = useMemo(() => (chat ? chat.messages : []), [chat?.messages])
@@ -115,7 +121,7 @@ export function Conversation() {
         </View>
       )}
 
-      <View style={[styles.inputContainer, { paddingBottom: bottom }]}>
+      <View style={[styles.inputContainer, { paddingBottom: bottom - 4 }]}>
         <TextInput
           style={styles.input}
           multiline
@@ -128,6 +134,8 @@ export function Conversation() {
 
         <IconButton icon="send" disabled={message.length === 0} onPress={send} />
       </View>
+
+      <Animated.View style={keyboardBlockStyles} />
     </SafeArea>
   )
 }

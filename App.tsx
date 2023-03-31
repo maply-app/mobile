@@ -1,17 +1,16 @@
 import 'react-native-reanimated'
 
-import React, { useEffect } from 'react'
+import React from 'react'
 import {
   ActivityIndicator, StatusBar, StyleSheet, View,
 } from 'react-native'
 import MapboxGL from '@rnmapbox/maps'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { useStore } from 'effector-react'
 import { MD3DarkTheme as DefaultTheme, Provider } from 'react-native-paper'
 import { PortalProvider } from '@gorhom/portal'
 import { registerSheet, SheetProvider } from 'react-native-actions-sheet'
-import { $token, $user } from './src/effector/user/store'
+import { ThemeProp } from 'react-native-paper/lib/typescript/src/types'
 import { Search } from './src/views/Authorized/Search/Search'
 import { Conversations } from './src/views/Authorized/Conversations/Conversations'
 import { Conversation } from './src/views/Authorized/Conversations/Conversation/Conversation'
@@ -19,7 +18,6 @@ import { SignIn } from './src/views/NotAuthorized/SignIn'
 import { SignUp } from './src/views/NotAuthorized/SignUp'
 import { Home } from './src/views/Authorized/Home/Home'
 import { getToken } from './src/effector/user/events'
-import { $pending } from './src/effector/ui/store'
 import { UserManager } from './src/managers/User'
 import { Settings as SettingsPage } from './src/views/Authorized/Settings/Settings'
 import { Theming } from './src/views/Authorized/Settings/subpages/Theming'
@@ -27,8 +25,8 @@ import { Share } from './src/views/Authorized/Settings/subpages/Share'
 import { Account } from './src/views/Authorized/Settings/subpages/Account'
 import { ScannedUserSheet } from './src/views/Authorized/Settings/subpages/Share/ScannedUserSheet'
 import { themes } from './src/const/theme'
-import { WebSocketManager } from './src/managers/WebSocket'
-import { ThemeProp } from 'react-native-paper/lib/typescript/src/types'
+import { GeolocationRequest } from './src/views/Authorized/GeolocationRequest/GeolocationRequest'
+import { AuthStatus, useAuth } from './useAuth'
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoibW92cHVzaG1vdiIsImEiOiJjbDBnaTB6aXcxMzc5M2Vwcm53b2xrajlmIn0.Zl55a5v_Tr2Sso_WDA_xsw',
@@ -51,30 +49,18 @@ UserManager.initializeGeolocation()
 getToken()
 
 export default function App() {
-  const token = useStore($token)
-  const user = useStore($user)
+  const authStatus = useAuth()
 
-  useEffect(() => {
-    if (token) WebSocketManager.openConnection({ token, reconnect: true })
-    else WebSocketManager.closeConnection()
-  }, [token])
-
-  useEffect(() => {
-    if (user && !UserManager.initialized) {
-      UserManager.startWatch()
-    }
-
-    if (UserManager.initialized && !token) {
-      UserManager.stopWatch()
-    }
-  }, [token, user])
-
-  if ((token && !user) || (user && !user?.info?.coords)) {
+  if (authStatus === AuthStatus.Loading) {
     return (
       <View style={styles.loaderContainer}>
         <ActivityIndicator size="large" />
       </View>
     )
+  }
+
+  if (authStatus === AuthStatus.NeedGeo) {
+    return <GeolocationRequest />
   }
 
   return (
@@ -84,7 +70,7 @@ export default function App() {
           <NavigationContainer>
             <StatusBar barStyle="light-content" />
             <Stack.Navigator screenOptions={{ header: () => null }}>
-              {user ? (
+              {authStatus === AuthStatus.Authorized ? (
                 <>
                   <Stack.Screen name="Home" component={Home} />
                   <Stack.Screen name="Search" component={Search} />

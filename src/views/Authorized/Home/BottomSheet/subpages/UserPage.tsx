@@ -1,42 +1,84 @@
 import React, { useEffect } from 'react'
 import {
   ActivityIndicator,
-  Image,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native'
 import { IconButton } from 'react-native-paper'
-import { useStore } from 'effector-react'
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { useNavigation } from '@react-navigation/native'
+import { createEvent, createStore, sample } from 'effector'
+import { createEffect } from 'effector/effector.cjs'
+import { useStore } from 'effector-react'
 import { Avatar } from '../../../../../components/Avatar'
 import { useBottomSheetNavigation } from '../../../../../hooks/useBottomSheetNavigation'
-import { useUserProfile } from '../../../../../hooks/useUserProfile'
-import { $friends, $user } from '../../../../../effector/user/store'
-import { FriendButton } from '../../../../../components/FriendButton'
+import { FriendButton, getUserStatus } from '../../../../../components/FriendButton'
 import { themes } from '../../../../../const/theme'
 import { NavigationProps } from '../../../../../types/navigation'
 import { selectChat } from '../../../Conversations/Conversation/useCurrentChat'
+import { User } from '../../../../../types/user'
+import { getUser } from '../../../../../api/methods/getUser'
+import { $friends, $requests } from '../../../../../effector/user/store'
+
+enum FetchStatus {
+  Done = 'done',
+  Failed = 'failed',
+  Loading = 'loading'
+}
+
+type FetchResult = {
+  status: FetchStatus.Done,
+  payload: User
+} | {
+  status: FetchStatus.Failed,
+  payload: null
+} | {
+  status: FetchStatus.Loading,
+  payload: null
+}
+
+const getProfile = createEvent<string>()
+const getProfileFx = createEffect((id: string) => getUser(id))
+
+const $fetchResult = createStore<FetchResult>({ status: FetchStatus.Loading, payload: null })
+  .on(getProfileFx.doneData, (_, payload) => (payload ? {
+    status: FetchStatus.Done,
+    payload,
+  } : {
+    status: FetchStatus.Failed,
+    payload: null,
+  }))
+  .on(getProfileFx.failData, () => ({ status: FetchStatus.Failed, payload: null }))
+  .on(getProfileFx.pending, (state, pending) => (pending ? { status: FetchStatus.Loading, payload: null } : state))
+
+sample({
+  clock: getProfile,
+  target: getProfileFx,
+})
 
 export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string } }, 'User'>) {
   const navigation = useNavigation<NavigationProps>()
   const { id } = route.params
 
-  const user = useStore($user)!
   const friends = useStore($friends)
+  const requests = useStore($requests)
 
-  const { status, data: foundUser } = useUserProfile(id, friends)
   const navigate = useBottomSheetNavigation()
+  const { status, payload: user } = useStore($fetchResult)
 
   useEffect(() => {
-    if (foundUser) {
-      navigate(foundUser, { openBottomSheet: false })
-    }
-  }, [foundUser])
+    getProfile(id)
+  }, [])
 
-  if (status === 'loading') {
+  useEffect(() => {
+    if (user) {
+      navigate(user, { openBottomSheet: false })
+    }
+  }, [user])
+
+  if (status === FetchStatus.Loading) {
     return (
       <View style={styles.errorContainer}>
         <ActivityIndicator />
@@ -44,7 +86,7 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
     )
   }
 
-  if (status === 'error' || !foundUser) {
+  if (status === FetchStatus.Failed) {
     return (
       <View style={styles.errorContainer}>
         <Text style={styles.error}>Упс! Что-то пошло не так</Text>
@@ -52,40 +94,43 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
     )
   }
 
+  const userStatus = getUserStatus(user.id, friends, requests)
+
   return (
     <>
       <View style={styles.userInfoContainer}>
-        <Avatar user={foundUser} size={48} />
+        <Avatar user={user} size={48} />
         <View>
-          <Text style={styles.userName}>{foundUser.name}</Text>
+          <Text style={styles.userName}>{user.name}</Text>
           <Text style={styles.userNick}>
             @
-            {foundUser.username}
+            {user.username}
           </Text>
         </View>
 
         <View style={styles.commandBar}>
-          {status === 'friend' && (
+          {userStatus.status === 'friend' && (
             <IconButton
               icon="chat"
               mode="contained"
               style={styles.commandBarButton}
               onPress={() => {
-                selectChat(foundUser)
+                selectChat(user)
                 navigation.navigate('Conversation')
               }}
             />
           )}
 
-          {foundUser.info && (
+          {userStatus.status === 'friend' && user.info && (
             <IconButton
               icon="crosshairs-gps"
               mode="contained"
               style={styles.commandBarButton}
-              onPress={() => navigate(foundUser, { openBottomSheet: false })}
+              onPress={() => navigate(user, { openBottomSheet: false })}
             />
           )}
-          <FriendButton foundUser={foundUser} onlyIcon />
+
+          <FriendButton foundUser={user} onlyIcon />
         </View>
       </View>
 
@@ -93,15 +138,15 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
         <View style={styles.friendsTitleContainer}>
           <Text style={styles.friendsTitle}>
             Друзья
-            {` ${foundUser.name}`}
+            {` ${user.name}`}
           </Text>
           <Text style={styles.friendsCounter}>
-            {(foundUser.friends ?? []).length}
+            {(user.friends ?? []).length}
           </Text>
         </View>
 
-        {foundUser.friends
-          && foundUser.friends.map((friend) => (
+        {user.friends
+          && user.friends.map((friend) => (
             <TouchableOpacity
               disabled={friend.id === user.id}
               onPress={() => navigate(friend, { openBottomSheet: false })}
