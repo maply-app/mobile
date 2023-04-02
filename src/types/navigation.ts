@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { User } from './user'
 
 export type ScreenProps = {
   Home: undefined;
@@ -6,7 +7,7 @@ export type ScreenProps = {
   SignIn: undefined;
   SignUp: undefined;
   Info: undefined;
-  Conversation: undefined;
+  Conversation: User;
   Conversations: undefined;
 
   // settings

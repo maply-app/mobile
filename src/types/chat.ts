@@ -19,6 +19,9 @@ export interface Chat {
 
   user: User;
   unreadMessages: number;
+
+  newChat?: boolean;
+  isEnd?: boolean;
 }
 
 export interface ApiChat {

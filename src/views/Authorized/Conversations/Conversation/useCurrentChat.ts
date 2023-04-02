@@ -1,51 +1,25 @@
-import {
-  createEffect, createEvent, createStore, sample,
-} from 'effector'
 import { useStore } from 'effector-react'
+import { useMemo } from 'react'
 import { Chat } from '../../../../types/chat'
 import { $chats } from '../../../../effector/user/store'
 import { User } from '../../../../types/user'
+import { addChat } from '../../../../effector/user/events'
 
-type UniversalChat = Chat & { newChat?: boolean }
+export function useCurrentChat(user: User): Chat {
+  const chats = useStore($chats)
+  const chat = useMemo(() => chats.find((chat) => chat.user.id === user.id), [chats])
 
-export const selectChat = createEvent<User>()
-export const selectedChatChanged = createEvent<Chat[]>()
+  if (chat) {
+    return chat
+  }
 
-const selectChatFx = createEffect(
-  ({ user, chats } : { user: User, chats: Chat[] }) => chats.find((chat) => chat.user.id === user.id) ?? {
-    user,
+  const newChat = {
     messages: [],
     unreadMessages: 0,
-  },
-)
+    user,
+    newChat: true,
+  }
 
-sample({
-  clock: selectChat,
-  source: $chats,
-
-  fn: (chats, payload) => ({ user: payload, chats }),
-  target: selectChatFx,
-})
-
-const $currentChat = createStore<UniversalChat | null>(null)
-  .on(selectChatFx.doneData, (_, payload) => payload)
-  .on(selectedChatChanged, (chat, chats) => {
-    if (chat) {
-      for (const c of chats) {
-        if (c.user.id === chat.user.id) {
-          return c
-        }
-      }
-    }
-
-    return chat
-  })
-
-sample({
-  source: $chats,
-  target: selectedChatChanged,
-})
-
-export function useCurrentChat() {
-  return useStore($currentChat)
+  addChat(newChat)
+  return newChat
 }

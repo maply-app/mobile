@@ -27,6 +27,7 @@ import { ScannedUserSheet } from './src/views/Authorized/Settings/subpages/Share
 import { themes } from './src/const/theme'
 import { GeolocationRequest } from './src/views/Authorized/GeolocationRequest/GeolocationRequest'
 import { AuthStatus, useAuth } from './useAuth'
+import { ScreenProps } from './src/types/navigation'
 
 MapboxGL.setAccessToken(
   'pk.eyJ1IjoibW92cHVzaG1vdiIsImEiOiJjbDBnaTB6aXcxMzc5M2Vwcm53b2xrajlmIn0.Zl55a5v_Tr2Sso_WDA_xsw',
@@ -34,7 +35,7 @@ MapboxGL.setAccessToken(
 
 registerSheet('scanned-user', ScannedUserSheet)
 
-const Stack = createNativeStackNavigator()
+const Stack = createNativeStackNavigator<ScreenProps>()
 
 const theme: ThemeProp = {
   ...DefaultTheme,
@@ -75,7 +76,7 @@ export default function App() {
                   <Stack.Screen name="Home" component={Home} />
                   <Stack.Screen name="Search" component={Search} />
                   <Stack.Screen name="Conversations" component={Conversations} />
-                  <Stack.Screen name="Conversation" component={Conversation} />
+                  <Stack.Screen name="Conversation" component={Conversation} initialParams={{ id: '' }} />
                   <Stack.Screen name="Settings" component={SettingsPage} />
                   <Stack.Screen name="Theming" component={Theming} />
                   <Stack.Screen name="Share" component={Share} />

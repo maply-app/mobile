@@ -17,7 +17,6 @@ import { useBottomSheetNavigation } from '../../../../../hooks/useBottomSheetNav
 import { FriendButton, getUserStatus } from '../../../../../components/FriendButton'
 import { themes } from '../../../../../const/theme'
 import { NavigationProps } from '../../../../../types/navigation'
-import { selectChat } from '../../../Conversations/Conversation/useCurrentChat'
 import { User } from '../../../../../types/user'
 import { getUser } from '../../../../../api/methods/getUser'
 import { $friends, $requests } from '../../../../../effector/user/store'
@@ -114,10 +113,7 @@ export function UserPage({ route } : NativeStackScreenProps<{ User: { id: string
               icon="chat"
               mode="contained"
               style={styles.commandBarButton}
-              onPress={() => {
-                selectChat(user)
-                navigation.navigate('Conversation')
-              }}
+              onPress={() => navigation.navigate('Conversation', user)}
             />
           )}
 

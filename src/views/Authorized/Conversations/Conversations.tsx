@@ -8,7 +8,6 @@ import SafeArea from '../../../components/SafeArea'
 import { Chat } from './Chat'
 import { NavigationProps } from '../../../types/navigation'
 import { Chat as ChatDTO } from '../../../types/chat'
-import { selectChat } from './Conversation/useCurrentChat'
 
 export function Conversations() {
   const chats = useStore($chats)
@@ -17,8 +16,7 @@ export function Conversations() {
   const { navigate } = useNavigation<NavigationProps>()
   const navigateToChat = useCallback(
     (chat: ChatDTO) => {
-      selectChat(chat.user)
-      navigate('Conversation')
+      navigate('Conversation', chat.user)
     },
     [navigate],
   )
@@ -30,7 +28,7 @@ export function Conversations() {
       {chats.length > 0 ? (
         <FlashList
           estimatedItemSize={100}
-          data={chats}
+          data={chats.filter((chat) => !chat.newChat)}
           renderItem={({ item }) => (
             <Chat
               chat={item}

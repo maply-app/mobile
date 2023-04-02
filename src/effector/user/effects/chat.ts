@@ -38,14 +38,17 @@ interface GetMessagesProps {
 }
 
 export const getMessagesFx = createEffect(
-  async ({ chat, offset, user }: GetMessagesProps): Promise<{ chat: Chat, messages: Message[] }> => {
+  async ({ chat, offset, user }: GetMessagesProps): Promise<{ chat: Chat, messages: Message[], isEnd: boolean }> => {
     const result = axiosInstance.get<ApiAnswer<ApiMessage[]>>(`/chats/messages/get?offset=${offset}&receiverId=${chat.user.id}`)
       .then((res) => res.data.data)
       .catch(() => [])
 
+    const messages = await result
+
     return {
       chat,
-      messages: (await result).map((message) => ({
+      isEnd: messages.length < 25,
+      messages: messages.map((message) => ({
         id: message.id,
         text: message.text,
 

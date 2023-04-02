@@ -7,17 +7,21 @@ import { Message as MessageDTO } from '../../../../types/chat'
 import { themes } from '../../../../const/theme'
 
 interface Props {
-  message: MessageDTO;
-  userId: string;
+  item: {
+    message: MessageDTO;
+    userId: string;
 
-  position: 'first' | 'middle' | 'last'
+    position: 'first' | 'middle' | 'last'
+  }
 }
 
-export function Message({ message, userId, position }: Props) {
-  const style = useMemo(() => ({
+export function Message({ item }: Props) {
+  const { message, userId, position } = item
+
+  const style = {
     paddingTop: position === 'first' ? 8 : 4,
-    paddingBottom: position === 'last' ? 8 : 4
-  }), [position])
+    paddingBottom: position === 'last' ? 8 : 4,
+  }
 
   return (
     <View style={[styles.message, style]}>

@@ -1,5 +1,5 @@
 import React, {
-  useCallback, useEffect, useMemo, useState,
+  useCallback, useEffect, useState,
 } from 'react'
 import {
   ActivityIndicator,
@@ -8,18 +8,21 @@ import {
 import { Button, IconButton } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialIcons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { useNavigation } from '@react-navigation/native'
 import { useStore } from 'effector-react'
 import { FlashList } from '@shopify/flash-list'
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated'
+import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import SafeArea from '../../../../components/SafeArea'
-import { getMessages, sendMessage } from '../../../../effector/user/events'
+import { sendMessage } from '../../../../effector/user/events'
 import { themes } from '../../../../const/theme'
 import { Avatar } from '../../../../components/Avatar'
 import { useCurrentChat } from './useCurrentChat'
 import { $user } from '../../../../effector/user/store'
 import { Message } from './Message'
 import { getMessagesFx } from '../../../../effector/user/effects/chat'
+import { ScreenProps } from '../../../../types/navigation'
+import { User } from '../../../../types/user'
+import { Chat } from '../../../../types/chat'
 
 function BackIcon({ color }: { color: string }) {
   return <Icon name="chevron-left" size={26} color={color} />
@@ -37,13 +40,16 @@ function getPosition(index: number, length: number) {
   return 'middle'
 }
 
-export function Conversation() {
+export function Conversation({ navigation, route }: NativeStackScreenProps<ScreenProps, 'Conversation'>) {
   const user = useStore($user)!
-  const chat = useCurrentChat()
+  const chat = useCurrentChat(route.params)
 
   const isLoading = useStore(getMessagesFx.pending)
+  const getMore = useCallback(
+    () => getMessagesFx({ user, offset: chat.messages.length, chat }),
+    [user, chat, chat.messages],
+  )
 
-  const navigation = useNavigation()
   const { bottom } = useSafeAreaInsets()
 
   const { height } = useAnimatedKeyboard()
@@ -52,25 +58,17 @@ export function Conversation() {
   }), [height.value])
 
   const [message, setMessage] = useState('')
-  const messages = useMemo(() => (chat ? chat.messages : []), [chat?.messages])
 
   useEffect(() => {
-    if (chat && !chat.newChat) {
-      getMessages({ offset: 0, chat })
+    if (!chat.newChat && !chat.messages.length) {
+      void getMore()
     }
   }, [])
 
   const send = useCallback(() => {
-    if (chat) {
-      sendMessage({ user, message, chat })
-    }
-
+    sendMessage({ user, message, chat })
     setMessage('')
   }, [message])
-
-  if (!chat) {
-    return null
-  }
 
   return (
     <SafeArea forceInset={{ bottom: 'never' }} style={{ flex: 1, flexDirection: 'column' }}>
@@ -98,25 +96,31 @@ export function Conversation() {
         </View>
       </View>
 
-      {messages.length > 0 && !isLoading && (
+      {chat.messages.length > 0 && (
         <View style={{ flex: 1 }}>
           <FlashList
+            onEndReached={() => {
+              if (!chat.isEnd) void getMore()
+            }}
             inverted
-            estimatedItemSize={70}
-            data={messages}
-            renderItem={({ item, index }) => <Message position={getPosition(index, messages.length)} userId={user.id} message={item} />}
+            data={chat.messages.map((message, index) => ({
+              message,
+              userId: user.id,
+              position: getPosition(index, chat.messages.length) as 'last' | 'first' | 'middle',
+            }))}
+            renderItem={Message}
           />
         </View>
       )}
 
-      {messages.length === 0 && !isLoading && (
+      {chat.messages.length === 0 && !isLoading && (
         <View style={{ flex: 1, marginTop: 260, alignItems: 'center' }}>
           <Text style={styles.nothing}>Здесь ничего нет...</Text>
         </View>
       )}
 
       {isLoading && (
-        <View style={{ flex: 1, marginTop: 260, alignItems: 'center' }}>
+        <View style={{ flex: chat.messages.length === 0 ? 1 : 0, marginTop: 260, alignItems: 'center' }}>
           <ActivityIndicator />
         </View>
       )}
@@ -125,6 +129,7 @@ export function Conversation() {
         <TextInput
           style={styles.input}
           multiline
+          maxLength={255}
           value={message}
           autoCapitalize="none"
           onChangeText={setMessage}

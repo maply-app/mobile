@@ -26,6 +26,6 @@ export type WebSocketPayload =
   WebSocketData<WebsocketEventType.DeleteFriend, { id: string }> | // id = user id
   WebSocketData<WebsocketEventType.SendRequest, { id: string, sender: EventEmitter }> |
   WebSocketData<WebsocketEventType.ConfirmRequest, { id: string; receiverID: string; receiver: EventEmitter }> | // request id
-  WebSocketData<WebsocketEventType.FriendsStats, { [key: string]: UserInfo }> |
+  WebSocketData<WebsocketEventType.FriendsStats, { [key: string]: Required<UserInfo['coords']> }> |
   WebSocketData<WebsocketEventType.NewMessage, ApiMessage> |
   WebSocketData<WebsocketEventType.MessagesRead, { userId: string }>

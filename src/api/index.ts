@@ -50,4 +50,4 @@ axiosInstance.interceptors.response.use(null, (reason: AxiosError) => {
   return reason
 })
 
-if (__DEV__) log()
+// if (__DEV__) log()

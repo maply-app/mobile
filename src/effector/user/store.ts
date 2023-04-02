@@ -46,7 +46,9 @@ export const $friends = createStore<User[]>([])
       const friend = newFriends.find((user) => user.id === userId)
 
       if (friend) {
-        friend.info = userInfo
+        friend.info = {
+          coords: userInfo,
+        }
       }
     }
 
@@ -95,6 +97,7 @@ export const $chats = createStore<Chat[]>([])
     for (const chat of chats) {
       if (chat.user.id === payload.chat.user.id) {
         chat.messages.push(...payload.messages)
+        chat.isEnd = payload.isEnd
       }
     }
 
@@ -259,15 +262,6 @@ sample({
   target: messageReceivedFx,
 
   fn: (chats, message) => ({ chats, message }),
-})
-
-sample({
-  clock: getMessages,
-  source: $user,
-  target: getMessagesFx,
-
-  filter: (user) => user !== null,
-  fn: (user, payload) => ({ user: user as User, chat: payload.chat, offset: payload.offset }),
 })
 
 sample({

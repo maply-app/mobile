@@ -36,14 +36,13 @@ export const requestReceived = createEvent<ReceivedRequest>()
 export const requestDeclined = createEvent<string>() // request id
 export const requestAccepted = createEvent<string>() // request id
 
-export const wsUpdateFriendsLocation = createEvent<{ [key: string]: UserInfo }>()
+export const wsUpdateFriendsLocation = createEvent<{ [key: string]: Required<UserInfo['coords']> }>()
 export const wsRequestAccepted = createEvent<SentRequest>()
 
 export const friendAdded = createEvent<User>()
 export const friendRemoved = createEvent<string>() // user id
 
 export const addChat = createEvent<Chat>()
-export const getMessages = createEvent<{ chat: Chat; offset: number }>()
 export const wsMessageReceived = createEvent<ApiMessage>()
 export const wsMessagesRead = createEvent<string>() // user id
 export const sendMessage = createEvent<{ chat: Chat; user: User; message: string }>()

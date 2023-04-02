@@ -1,7 +1,6 @@
-import { addBatteryLevelListener, Subscription } from 'expo-battery'
+import { addBatteryLevelListener, getBatteryLevelAsync, Subscription } from 'expo-battery'
 import {
-  getBackgroundPermissionsAsync,
-  getCurrentPositionAsync, getForegroundPermissionsAsync,
+  getCurrentPositionAsync,
   LocationAccuracy, LocationObject,
   startLocationUpdatesAsync,
   stopLocationUpdatesAsync,
@@ -13,11 +12,11 @@ type LocationData = { locations: LocationObject[] }
 
 const LOCATION_TRACKING = 'location-tracking'
 const config = {
-  showsBackgroundLocationIndicator: true,
+  showsBackgroundLocationIndicator: __DEV__,
   accuracy: LocationAccuracy.Highest,
   mayShowUserSettingsDialog: true,
-  deferredUpdatesInterval: 1000,
-  deferredUpdatesDistance: 25,
+  deferredUpdatesInterval: 30000,
+  deferredUpdatesDistance: 50,
 }
 
 export class UserManager {
@@ -58,7 +57,12 @@ export class UserManager {
 
     void startLocationUpdatesAsync(LOCATION_TRACKING, config)
 
-    getCurrentPositionAsync(config)
+    getBatteryLevelAsync()
+      .then((level) => updateInfo({
+        battery: Math.trunc(level * 100),
+      }))
+
+    getCurrentPositionAsync()
       .then((result) => updateInfo({
         lat: result.coords.latitude,
         lon: result.coords.longitude,

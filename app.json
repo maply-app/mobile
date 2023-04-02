@@ -11,9 +11,6 @@
       "resizeMode": "contain",
       "backgroundColor": "#000000"
     },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
     "assetBundlePatterns": [
       "**/*"
     ],
@@ -35,7 +32,7 @@
       ]
     ],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "infoPlist": {
         "NSLocationAlwaysAndWhenInUseUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей геолокации",
         "NSLocationAlwaysUsageDescription": "$(PRODUCT_NAME) нужен доступ к вашей геолокации",
@@ -47,7 +44,7 @@
         ]
       },
       "bundleIdentifier": "com.movpushmov.maply",
-      "buildNumber": "3"
+      "buildNumber": "4"
     },
     "android": {
       "adaptiveIcon": {
@@ -62,6 +59,12 @@
       "eas": {
         "projectId": "b9632dec-b0d0-4889-8674-39ec194ae2a8"
       }
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/b9632dec-b0d0-4889-8674-39ec194ae2a8"
     }
   }
 }
